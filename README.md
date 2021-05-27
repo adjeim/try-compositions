@@ -1,4 +1,4 @@
-# try_compositions
+# try-compositions
 
 Create playable video compositions from your Twilio Video recordings.
 View your videos in the browser or download them to your device.
