@@ -19,6 +19,8 @@ const twilioClient = new Twilio(
   { accountSid: process.env.TWILIO_ACCOUNT_SID as string }
 );
 
+const statusCallbackUrl = `${process.env.NGROK_FORWARDING_URL}/callback`;
+
 interface VideoRoom {
   sid: string;
   name: string;
@@ -122,7 +124,7 @@ app.get('/compose/:sid', async (req, res, next) => {
           video_sources: ['*']
         }
       },
-      statusCallback: 'http://4e72141b3691.ngrok.io/callback',
+      statusCallback: statusCallbackUrl,
       format: 'mp4'
     });
 

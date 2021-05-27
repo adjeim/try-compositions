@@ -28,9 +28,9 @@ body.app
             td
               each composition in room.compositions
                 li
-                  a(class='button' href=`/compositions/${composition.sid}/view`) View
-                  a(class='button' href=`/compositions/${composition.sid}/download`) Download
-                  a(class='button compositionAction' href=`/compositions/${composition.sid}/delete`) Delete
+                  button(class='button' value=`/compositions/${composition.sid}/view`) View
+                  button(class='button' value=`/compositions/${composition.sid}/download`) Download
+                  button(class='button compositionAction' value=`/compositions/${composition.sid}/delete` ) Delete
   h2 Recent Rooms with Recordings
   table
     tr
@@ -43,13 +43,13 @@ body.app
           td= room.name
           td #{new Date(room.duration * 1000).toISOString().substr(11, 8)}
           td
-            a(class='button compositionAction' href=`/compose/${room.sid}`) Compose
+            button(class='button compositionAction' value=`/compose/${room.sid}` ) Compose
 
 script.
   addEventListener('click', async (event) => {
     if (event.target.classList.contains('compositionAction')) {
         event.preventDefault();
-        await fetch(event.target.href);
+        await fetch(event.target.value);
     }
   });
 
