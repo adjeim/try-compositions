@@ -14,12 +14,10 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 const twilioClient = new Twilio(
-  process.env.TWILIO_API_KEY as string,
-  process.env.TWILIO_API_SECRET as string,
+  process.env.TWILIO_API_KEY_SID as string,
+  process.env.TWILIO_API_KEY_SECRET as string,
   { accountSid: process.env.TWILIO_ACCOUNT_SID as string }
 );
-
-const statusCallbackUrl = `${process.env.NGROK_FORWARDING_URL}/callback`;
 
 interface VideoRoom {
   sid: string;
@@ -111,6 +109,10 @@ app.get('/compose/:sid', async (req, res, next) => {
 
   const roomSid: string = req.params.sid;
 
+  // Set the URL for receiving status callbacks
+  // Your ngrok forwarding URL will be in req.headers.referer (https://<YOUR_VALUE_HERE>.ngrok.io/)
+  const statusCallbackUrl = `${req.get('referrer')}callback`;
+
   try {
     // Get the room's recordings and compose them
     const recordings = await twilioClient.video.recordings.list({ groupingSid: [roomSid] });
@@ -176,7 +178,7 @@ app.get('/compositions/:sid/view', async (req, res, next) => {
       uri: uri
     })
 
-    return res.redirect(compResponse.body.redirect_to);
+    return res.status(200).send({url: compResponse.body.redirect_to});
 
   } catch (error) {
     return res.status(400).send({
@@ -200,7 +202,7 @@ app.get('/compositions/:sid/download', async (req, res, next) => {
 
   try {
     // Get the composition by its sid.
-    // ContentDisposition defaults to attachment, which prompt your browser to download the file locally.
+    // ContentDisposition defaults to attachment, which prompts your browser to download the file locally.
     const uri = `https://video.twilio.com/v1/Compositions/${compositionSid}/Media?Ttl=3600`;
 
     let compResponse = await twilioClient.request({
@@ -208,7 +210,7 @@ app.get('/compositions/:sid/download', async (req, res, next) => {
       uri: uri
     });
 
-    return res.redirect(compResponse.body.redirect_to);
+    return res.status(200).send({url: compResponse.body.redirect_to});
 
   } catch (error) {
     console.log(error)

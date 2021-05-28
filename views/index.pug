@@ -4,8 +4,8 @@ head
   style
     include style.css
   script(
-    src='https://cdn.socket.io/3.1.3/socket.io.min.js'
-    integrity='sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh'
+    src='https://cdn.socket.io/4.1.1/socket.io.min.js'
+    integrity='sha384-cdrFIqe3RasCMNE0jeFG9xJHog/tgOVC1E9Lzve8LQN1g5WUHo0Kvk1mawWjxX7a'
     crossorigin='anonymous'
   )
 
@@ -28,9 +28,9 @@ body.app
             td
               each composition in room.compositions
                 li
-                  button(class='button' value=`/compositions/${composition.sid}/view`) View
-                  button(class='button' value=`/compositions/${composition.sid}/download`) Download
-                  button(class='button compositionAction' value=`/compositions/${composition.sid}/delete` ) Delete
+                  button(class='button compositionAction' value=`/compositions/${composition.sid}/view`) View
+                  button(class='button compositionAction' value=`/compositions/${composition.sid}/download`) Download
+                  button(class='button compositionAction' value=`/compositions/${composition.sid}/delete`) Delete
   h2 Recent Rooms with Recordings
   table
     tr
@@ -48,8 +48,12 @@ body.app
 script.
   addEventListener('click', async (event) => {
     if (event.target.classList.contains('compositionAction')) {
-        event.preventDefault();
-        await fetch(event.target.value);
+      event.preventDefault();
+      const response = await fetch(event.target.value);
+      const responseJson = await response.json();
+      if (responseJson.url) {
+        window.location = responseJson.url;
+      }
     }
   });
 
@@ -61,32 +65,31 @@ script.
     switch (status) {
       case 'composition-request':
         statusText = 'Sent request for composition. ✉️';
-        loading = true;
         break
 
       case 'composition-started':
         statusText = 'Composition has begun! 😄';
-        loading = true;
         break
 
       case 'composition-available':
         statusText = 'Your composition is now available! 🎉 Reloading in 3 seconds...'
-        loading = false;
         break
 
       case 'composition-progress':
         statusText = `Working... 🚧`
-        loading = true;
         break
 
       case 'composition-failed':
         statusText = 'Composition has failed. 😞'
-        loading = false;
         break
 
       case 'composition-deleted':
         statusText = 'Composition deleted. ✅ Reloading in 3 seconds...'
-        loading = false;
+        break
+
+      default:
+        statusText = ''
+        break
     }
 
     const statusUpdate = document.getElementById('statusUpdate');
